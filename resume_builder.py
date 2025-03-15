@@ -1,4 +1,3 @@
-
 import os
 import PyPDF2
 import google.generativeai as genai
@@ -14,18 +13,27 @@ from xhtml2pdf import pisa
 # Load environment variables
 load_dotenv()
 
-# Configure Gemini API
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-if not GEMINI_API_KEY:
-    GEMINI_API_KEY = st.secrets.get("GEMINI_API_KEY", None)
+# Configure Google Generative AI
+try:
+    # First try to get API key from Streamlit secrets (for deployment)
+    GOOGLE_API_KEY = st.secrets["GOOGLE_API_KEY"]
+except:
+    # Fallback to environment variable (for local development)
+    GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+
+if not GOOGLE_API_KEY:
+    st.error("Google API Key not found. Please set it in .env file or Streamlit secrets.")
+    st.stop()
+
+genai.configure(api_key=GOOGLE_API_KEY)
 
 def initialize_gemini_api():
     """Initialize the Gemini API with the API key."""
-    if not GEMINI_API_KEY:
+    if not GOOGLE_API_KEY:
         st.error("Gemini API key not found. Please set it in your .env file or Streamlit secrets.")
         st.stop()
     
-    genai.configure(api_key=GEMINI_API_KEY)
+    genai.configure(api_key=GOOGLE_API_KEY)
     
     # List available models for debugging
     try:
